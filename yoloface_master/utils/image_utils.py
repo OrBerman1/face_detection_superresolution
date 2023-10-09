@@ -6,6 +6,11 @@ import numpy as np
 
 
 def read_video(video_path):
+    """
+    read video using path to video
+    @param video_path: path to video to read
+    @return: list of PIL images of the video's frames
+    """
     vidObj = cv2.VideoCapture(video_path)
     success = 1
     frames = []
@@ -18,6 +23,11 @@ def read_video(video_path):
 
 
 def read_images_from_dir(dir_path):
+    """
+    read all the images in a dir. Note, the dir most contain only images
+    @param dir_path: path to directory of images
+    @return: list of PIL images
+    """
     images_names = os.listdir(dir_path)
     images_ls = []
     for image in images_names:
@@ -26,16 +36,32 @@ def read_images_from_dir(dir_path):
 
 
 def save_images_to_dir(image_ls, dir_path="bb_examples"):
+    """
+    save a list of images
+    @param image_ls: list of images to save
+    @param dir_path: a path to a directory for the images
+    """
     os.makedirs(dir_path, exist_ok=True)
     for i, image in enumerate(image_ls):
         image.save(f"{dir_path}/{i+1}.png")
 
 
 def resize_image(img, size: int):
+    """
+    reshape image to a square by size
+    @param img: the image
+    @param size: the size of the square
+    @return: resized image
+    """
     return cv2.resize(np.array(img), (size, size), interpolation=cv2.INTER_LINEAR)
 
 
 def pad_image_square(img: Image):
+    """
+    pad image with zero to a square shape according to it's dimensions
+    @param img: image
+    @return: padded squared image
+    """
     width, height = img.size
     if width > height:
         result = Image.new(img.mode, (width, width), (0, 0, 0))
@@ -48,6 +74,11 @@ def pad_image_square(img: Image):
 
 
 def video_to_images_for_detection(video):
+    """
+    convert a list of images to format suited for the detector model
+    @param video: a list of images
+    @return: list of formatted images
+    """
     new_video = []
     for frame in video:
         frame = np.array(pad_image_square(frame))
@@ -56,6 +87,12 @@ def video_to_images_for_detection(video):
 
 
 def draw_bbs_on_video(video, bboxes):
+    """
+    drqw bounding boxes on the images
+    @param video: a list of images
+    @param bboxes: list of all the bounding boxes of each image
+    @return: images with drawn bounding boxes
+    """
     draw_frames = []
     for frame, bbs in zip(video, bboxes):
         if type(frame) != Image:
@@ -66,6 +103,12 @@ def draw_bbs_on_video(video, bboxes):
 
 
 def draw_bbs_on_image(img, bbs: list):
+    """
+    draw bounding boxes on single image
+    @param img: image
+    @param bbs: list of image bounding boxes
+    @return: image with drawn bounding boxes
+    """
     image_to_draw = ImageDraw.Draw(img)
     for bb in bbs:
         start = (bb[0], bb[1])
