@@ -34,11 +34,11 @@ def main():
 #         save_LR_folder = '../../datasets/DIV2K/DIV2K800_sub_bicLRx4'
 
         GT_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_train'
-        LR_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_train_lr_4'
+        LR_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_train_lr_2'
         save_GT_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_sub_extracted'
-        save_LR_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_lr_4_sub_extracted'
+        save_LR_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_lr_2_sub_extracted_blur'
         
-        scale_ratio = 4
+        scale_ratio = 2
         # crop_sz = 360  # the size of each sub-image (GT)
         crop_sz = (216, 168)
         step = 180  # step of the sliding crop window (GT)
@@ -72,6 +72,7 @@ def main():
         opt['crop_sz'] = crop_sz
         opt['step'] = step
         opt['thres_sz'] = thres_sz
+        opt['blur'] = False
         extract_signle(opt)
         print('process LR...')
         opt['input_folder'] = LR_folder
@@ -79,6 +80,7 @@ def main():
         opt['crop_sz'] = (crop_sz[0] // scale_ratio, crop_sz[1] // scale_ratio)
         opt['step'] = step // scale_ratio
         opt['thres_sz'] = thres_sz // scale_ratio
+        opt['blur'] = True
         extract_signle(opt)
         assert len(data_util._get_paths_from_images(save_GT_folder)) == len(
             data_util._get_paths_from_images(
@@ -145,6 +147,8 @@ def worker(path, opt):
                 crop_img = img[x:x + crop_sz_h, y:y + crop_sz_w]
             else:
                 crop_img = img[x:x + crop_sz_h, y:y + crop_sz_w, :]
+            if opt['blur']:
+                crop_img = cv2.blur(img, (3,3))
             crop_img = np.ascontiguousarray(crop_img)
             cv2.imwrite(
                 osp.join(opt['save_folder'],

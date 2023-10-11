@@ -6,11 +6,11 @@ args.add_argument("--detection_batch_size", type=int, default=20, help="number o
 args.add_argument("--min-face", type=int, default=10, help="minimum possible size of faces in image")
 args.add_argument("--visualize-bbs", default=True, action="store_true")
 args.add_argument("--scale", type=int, help="Super resolution model scale to use, "
-                                            "possible values are 2, 3, 4", default=2)
-args.add_argument("--margin", type=int, help="enlarge the bbs by a margin", default=20)
+                                            "possible values are 2, 3, 4", default=4)
+args.add_argument("--margin", type=int, help="enlarge the bbs by a margin", default=45)
 args.add_argument("--save-path", type=str, help="path to where to save output"
-                                                "if you dont wont to save the faces enter None", default="./results")
-args.add_argument("--checkpoint", type=str, help="path to the model checkpoint", default="PAN\experiments\PANx2_celebA_preprocessed_multiple_savings\models/10000_G.pth")
+                                                "if you dont wont to save the faces enter None", default="./results4_blur")
+args.add_argument("--checkpoint", type=str, help="path to the model checkpoint", default="PAN\experiments\PANx4_celebA_preprocessed_blur\models/10000_G.pth")
 args.add_argument("--device", type=str, default="cpu")
 
 
