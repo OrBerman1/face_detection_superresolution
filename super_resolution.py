@@ -9,22 +9,17 @@ from PAN.codes.utils.util import single_forward, tensor2img
 import cv2
 
 
-def load_upscaler(device="cpu", scale=2):
+def load_upscaler(checkpoint_path, device="cpu", scale=2):
     """
-    loads the super resolution model from a chosen scale.
+    loads the super resolution model for a chosen scale.
+    @param checkpoint_path: the path to the model checkpoint to load
     @param device: the device to load the model to: cpu or cuda
     @param scale: the scale of the model to load: 2,3,4
     @return: the super resolution model
     """
+    assert scale in [2, 3, 4], f"no model with scale {scale} exists"
     model = PAN_arch.PAN(in_nc=3, out_nc=3, nf=40, unf=24, nb=16, scale=scale)
-    if scale == 2:
-        model_weight = torch.load('./PAN/experiments/pretrained_models/PANx2_DF2K.pth')
-    elif scale == 3:
-        model_weight = torch.load('./PAN/experiments/pretrained_models/PANx3_DF2K.pth')
-    elif scale == 4:
-        model_weight = torch.load('./PAN/experiments/pretrained_models/PANx4_DF2K.pth')
-    else:
-        raise ValueError(f"no model with scale {scale} exists")
+    model_weight = torch.load(checkpoint_path)
     model.load_state_dict(model_weight)
     model = model.to(device)
     return model
@@ -60,13 +55,14 @@ def upscale_image(img, model, device="cpu"):
     return tensor2img(output)
 
 
-def upscale_crops(img, crops, model, device="cpu"):
+def upscale_crops(img, crops, model, margin, device="cpu"):
     """
     this function receives an image, crops coordinates and a super resolution model. The function upsamples each
     crop with super resolution
     @param img: an image as a numpy array
     @param crops: list of crop coordinates, bounding boxes of format xyxy
     @param model: super resolution model
+    @param margin: enlarge the bb by a margin
     @param device: the device to load the crops to
     @return: a list of upsampled crops from the image
     """
@@ -74,10 +70,10 @@ def upscale_crops(img, crops, model, device="cpu"):
 
     for crop_coords in crops:
         xl, yl, xr, yr = crop_coords
-        xl = max(0, xl - 75)
-        xr = min(img.shape[1], xr + 75)
-        yl = max(0, yl - 75)
-        yr = min(img.shape[0], yr + 75)
+        xl = max(0, xl - margin)
+        xr = min(img.shape[1], xr + margin)
+        yl = max(0, yl - margin)
+        yr = min(img.shape[0], yr + margin)
         img_crops.append(img[yl:yr, xl:xr])
 
     upscaled_crops = []
@@ -85,6 +81,6 @@ def upscale_crops(img, crops, model, device="cpu"):
         output = upscale_image(crop, model, device)
         upscaled_crops.append(output)
 
-    return [item for item in upscaled_crops]
+    return [item for item in upscaled_crops], img_crops
 
 

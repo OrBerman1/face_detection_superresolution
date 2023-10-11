@@ -7,14 +7,14 @@ import numpy as np
 import cv2
 from PIL import Image
 sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
-from utils.util import ProgressBar  # noqa: E402
-import data.util as data_util  # noqa: E402
+from codes.utils.util import ProgressBar  # noqa: E402
+import codes.data.util as data_util  # noqa: E402
 
 
 def main():
     mode = 'pair'  # single (one input folder) | pair (extract corresponding GT and LR pairs)
     opt = {}
-    opt['n_thread'] = 20
+    opt['n_thread'] = 1
     opt['compression_level'] = 3  # 3 is the default value in cv2
     # CV_IMWRITE_PNG_COMPRESSION from 0 to 9. A higher value means a smaller size and longer
     # compression time. If read raw images during training, use 0 for faster IO speed.
@@ -33,13 +33,14 @@ def main():
 #         save_GT_folder = '../../datasets/DIV2K/DIV2K800_sub'
 #         save_LR_folder = '../../datasets/DIV2K/DIV2K800_sub_bicLRx4'
 
-        GT_folder = '/mnt/hyzhao/Documents/datasets/DF2K_train/HR'
-        LR_folder = '/mnt/hyzhao/Documents/datasets/DF2K_train/LR/X3'
-        save_GT_folder = '/mnt/hyzhao/Documents/datasets/DF2K_train/HRx3_sub360'
-        save_LR_folder = '/mnt/hyzhao/Documents/datasets/DF2K_train/LRx3_sub120'
+        GT_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_train'
+        LR_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_train_lr_4'
+        save_GT_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_sub_extracted'
+        save_LR_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_lr_4_sub_extracted'
         
-        scale_ratio = 3
-        crop_sz = 360  # the size of each sub-image (GT)
+        scale_ratio = 4
+        # crop_sz = 360  # the size of each sub-image (GT)
+        crop_sz = (216, 168)
         step = 180  # step of the sliding crop window (GT)
     
         thres_sz = 48  # size threshold
@@ -48,17 +49,19 @@ def main():
         img_GT_list = data_util._get_paths_from_images(GT_folder)
         img_LR_list = data_util._get_paths_from_images(LR_folder)
         assert len(img_GT_list) == len(img_LR_list), 'different length of GT_folder and LR_folder.'
-        for path_GT, path_LR in zip(img_GT_list, img_LR_list):
-            img_GT = Image.open(path_GT)
-            img_LR = Image.open(path_LR)
-            w_GT, h_GT = img_GT.size
-            w_LR, h_LR = img_LR.size
-            assert w_GT / w_LR == scale_ratio, 'GT width [{:d}] is not {:d}X as LR weight [{:d}] for {:s}.'.format(  # noqa: E501
-                w_GT, scale_ratio, w_LR, path_GT)
-            assert w_GT / w_LR == scale_ratio, 'GT width [{:d}] is not {:d}X as LR weight [{:d}] for {:s}.'.format(  # noqa: E501
-                w_GT, scale_ratio, w_LR, path_GT)
+        # for path_GT, path_LR in zip(img_GT_list, img_LR_list):
+        #     img_GT = Image.open(path_GT)
+        #     img_LR = Image.open(path_LR)
+        #     w_GT, h_GT = img_GT.size
+        #     w_LR, h_LR = img_LR.size
+        #     assert w_GT / w_LR == scale_ratio, 'GT width [{:d}] is not {:d}X as LR weight [{:d}] for {:s}.'.format(  # noqa: E501
+        #         w_GT, scale_ratio, w_LR, path_GT)
+        #     assert w_GT / w_LR == scale_ratio, 'GT width [{:d}] is not {:d}X as LR weight [{:d}] for {:s}.'.format(  # noqa: E501
+        #         w_GT, scale_ratio, w_LR, path_GT)
         # check crop size, step and threshold size
-        assert crop_sz % scale_ratio == 0, 'crop size is not {:d}X multiplication.'.format(
+        assert crop_sz[0] % scale_ratio == 0, 'crop size is not {:d}X multiplication.'.format(
+            scale_ratio)
+        assert crop_sz[1] % scale_ratio == 0, 'crop size is not {:d}X multiplication.'.format(
             scale_ratio)
         assert step % scale_ratio == 0, 'step is not {:d}X multiplication.'.format(scale_ratio)
         assert thres_sz % scale_ratio == 0, 'thres_sz is not {:d}X multiplication.'.format(
@@ -73,7 +76,7 @@ def main():
         print('process LR...')
         opt['input_folder'] = LR_folder
         opt['save_folder'] = save_LR_folder
-        opt['crop_sz'] = crop_sz // scale_ratio
+        opt['crop_sz'] = (crop_sz[0] // scale_ratio, crop_sz[1] // scale_ratio)
         opt['step'] = step // scale_ratio
         opt['thres_sz'] = thres_sz // scale_ratio
         extract_signle(opt)
@@ -91,8 +94,9 @@ def extract_signle(opt):
         os.makedirs(save_folder)
         print('mkdir [{:s}] ...'.format(save_folder))
     else:
-        print('Folder [{:s}] already exists. Exit...'.format(save_folder))
-        sys.exit(1)
+        pass
+        # print('Folder [{:s}] already exists. Exit...'.format(save_folder))
+        # sys.exit(1)
     img_list = data_util._get_paths_from_images(input_folder)
 
     def update(arg):
@@ -102,14 +106,17 @@ def extract_signle(opt):
 
     pool = Pool(opt['n_thread'])
     for path in img_list:
-        pool.apply_async(worker, args=(path, opt), callback=update)
+        path = path.replace("\\", "/")
+        result = pool.apply_async(worker, args=(path, opt), callback=update)
     pool.close()
     pool.join()
+
+
     print('All subprocesses done.')
 
 
 def worker(path, opt):
-    crop_sz = opt['crop_sz']
+    crop_sz_h, crop_sz_w = opt['crop_sz']
     step = opt['step']
     thres_sz = opt['thres_sz']
     img_name = osp.basename(path)
@@ -123,21 +130,21 @@ def worker(path, opt):
     else:
         raise ValueError('Wrong image shape - {}'.format(n_channels))
 
-    h_space = np.arange(0, h - crop_sz + 1, step)
-    if h - (h_space[-1] + crop_sz) > thres_sz:
-        h_space = np.append(h_space, h - crop_sz)
-    w_space = np.arange(0, w - crop_sz + 1, step)
-    if w - (w_space[-1] + crop_sz) > thres_sz:
-        w_space = np.append(w_space, w - crop_sz)
+    h_space = np.arange(0, h - crop_sz_h + 1, step)
+    if h - (h_space[-1] + crop_sz_h) > thres_sz:
+        h_space = np.append(h_space, h - crop_sz_h)
+    w_space = np.arange(0, w - crop_sz_w + 1, step)
+    if w - (w_space[-1] + crop_sz_w) > thres_sz:
+        w_space = np.append(w_space, w - crop_sz_w)
 
     index = 0
     for x in h_space:
         for y in w_space:
             index += 1
             if n_channels == 2:
-                crop_img = img[x:x + crop_sz, y:y + crop_sz]
+                crop_img = img[x:x + crop_sz_h, y:y + crop_sz_w]
             else:
-                crop_img = img[x:x + crop_sz, y:y + crop_sz, :]
+                crop_img = img[x:x + crop_sz_h, y:y + crop_sz_w, :]
             crop_img = np.ascontiguousarray(crop_img)
             cv2.imwrite(
                 osp.join(opt['save_folder'],
