@@ -35,4 +35,3 @@ def video_face_detection_and_super_resolution(video):
                     org_crop.save(f"{args.save_path}/original_crops/frame_{i}_face_{j}_scale={args.scale}.jpg")
                 super_resolution_faces.append(pil_img)
     return super_resolution_faces
-

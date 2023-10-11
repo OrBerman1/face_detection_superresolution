@@ -63,6 +63,6 @@ def create_lr_data(path_to_datasets, data_dir, scale, num_threads=20):
 
 
 if __name__ == '__main__':
-    create_lr_data("./PAN/datasets", "img_align_celeba_val", 4)
+    create_lr_data("../PAN/datasets", "img_align_celeba_val", 4)
 
 
