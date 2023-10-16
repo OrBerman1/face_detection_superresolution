@@ -9,7 +9,7 @@ args.add_argument("--scale", type=int, help="Super resolution model scale to use
                                             "possible values are 2, 3, 4", default=4)
 args.add_argument("--margin", type=int, help="enlarge the bbs by a margin", default=45)
 args.add_argument("--save-path", type=str, help="path to where to save output"
-                                                "if you dont wont to save the faces enter None", default="./results4_blur")
+                                                "if you dont wont to save the faces enter None", default="./cv2_results4")
 args.add_argument("--checkpoint", type=str, help="path to the model checkpoint", default="/home/user/iron_swords/face_detection_superresolution/PAN/experiments/pretrained_models/PANx4_DF2K.pth")
 args.add_argument("--device", type=str, default="cuda")
 

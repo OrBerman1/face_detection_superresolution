@@ -1,4 +1,5 @@
 *.pth
 *.PNG
 *.png
+*.pb
 venv
