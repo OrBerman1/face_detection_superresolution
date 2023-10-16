@@ -25,6 +25,16 @@ def load_upscaler(checkpoint_path, device="cpu", scale=2):
     return model
 
 
+def load_upscaler_cv2(checkpoint_path, device="cpu", scale=2):
+    sr = cv2.dnn_superres.DnnSuperResImpl_create()
+    sr.readModel(checkpoint_path)
+    if "cuda" in device:
+        sr.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+        sr.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+    sr.setModel("edsr", scale)
+    return sr
+
+
 def img2tensor(img):
     """
     converts image to tensor and prepares it for super resolution
@@ -82,5 +92,25 @@ def upscale_crops(img, crops, model, margin, device="cpu"):
         upscaled_crops.append(output)
 
     return [item for item in upscaled_crops], img_crops
+
+
+def upscale_crops_cv2(img, crops, model, margin):
+    img_crops = []
+
+    for crop_coords in crops:
+        xl, yl, xr, yr = crop_coords
+        xl = max(0, xl - margin)
+        xr = min(img.shape[1], xr + margin)
+        yl = max(0, yl - margin)
+        yr = min(img.shape[0], yr + margin)
+        img_crops.append(img[yl:yr, xl:xr])
+
+    upscaled_crops = []
+    for crop in img_crops:
+        output = model.upsample(crop)
+        upscaled_crops.append(output)
+
+    return [item for item in upscaled_crops], img_crops
+
 
 

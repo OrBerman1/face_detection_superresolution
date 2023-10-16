@@ -22,6 +22,8 @@ if __name__ == '__main__':
     #     video = cv2.cvtColor(cv2.imread(args.image_path), cv2.COLOR_BGR2RGB)
     # else:
     #     raise ValueError("Both video_path and image_path arguments are not set, one should be passed")
-    video_path = "VID-20231007-WA0155.mp4"
-    video = read_video(video_path)[200:300]
+    # video_path = "VID-20231007-WA0155.mp4"
+    # video = read_video(video_path)[200:300]
+    image_path = "image.jpg"
+    image = rea
     super_resolution_faces = video_face_detection_and_super_resolution(video)

@@ -1,5 +1,5 @@
 import face_detection
-from super_resolution import load_upscaler, upscale_crops
+from super_resolution import load_upscaler_cv2, upscale_crops_cv2
 from PIL import Image
 import os
 from argparser import parse_args
@@ -17,7 +17,7 @@ def video_face_detection_and_super_resolution(video):
         video, bbs, _ = face_detection.detection_pipeline(video)
     else:
         video, bbs = face_detection.detection_pipeline(video)
-    model = load_upscaler(args.checkpoint, args.device, args.scale)
+    model = load_upscaler_cv2(args.checkpoint, args.device, args.scale)
     model.eval()
 
     if args.save_path:
@@ -26,7 +26,7 @@ def video_face_detection_and_super_resolution(video):
     super_resolution_faces = []
     for i, (frame, bb) in enumerate(zip(video, bbs)):
         if len(bb) > 0:
-            upscaled_crops, img_crops = upscale_crops(frame, bb, model, args.margin, args.device)
+            upscaled_crops, img_crops = upscale_crops_cv2(frame, bb, model, args.margin, args.device)
             for j, item in enumerate(upscaled_crops):
                 pil_img = Image.fromarray(item)
                 org_crop = Image.fromarray(img_crops[j])
