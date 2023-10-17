@@ -55,6 +55,7 @@ def upscale_image(img, model, device="cpu"):
         output = single_forward(model, imgt.cuda())
 
     return sharp_edges(tensor2img(output))
+    # return tensor2img(output)
 
 
 def upscale_crops(img, crops, model, margin, device="cpu"):
@@ -64,7 +65,6 @@ def upscale_crops(img, crops, model, margin, device="cpu"):
     @param img: an image as a numpy array
     @param crops: list of crop coordinates, bounding boxes of format xyxy
     @param model: super resolution model
-    @param margin: enlarge the bb by a margin
     @param device: the device to load the crops to
     @return: a list of upsampled crops from the image
     """
@@ -83,6 +83,9 @@ def upscale_crops(img, crops, model, margin, device="cpu"):
         output = upscale_image(crop, model, device)
         upscaled_crops.append(output)
 
-    return [item for item in upscaled_crops], img_crops
+    return [item for item in upscaled_crops]
+
+
+
 
 
