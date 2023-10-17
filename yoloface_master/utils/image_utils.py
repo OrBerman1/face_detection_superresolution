@@ -78,3 +78,12 @@ def draw_bbs_on_image(img, bbs: list):
         end = (bb[2], bb[3])
         image_to_draw.rectangle([start, end], outline="red")
     return img
+
+
+def sharp_edges(img):
+    img = np.array(img)
+    kernel = np.array([[0, -1, 0],
+                       [-1, 5, -1],
+                       [0, -1, 0]])
+    sharpened = cv2.filter2D(img, -1, kernel)
+    return sharpened
