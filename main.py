@@ -25,6 +25,6 @@ if __name__ == '__main__':
     # video_path = "VID-20231007-WA0155.mp4"
     # video_path = "/home/user/iron_swords/face_detection_superresolution/video2.mp4"
     # video = read_video(video_path)
-    image_path = "/home/user/iron_swords/face_detection_superresolution/snir bar.PNG"
+    image_path = "/home/user/iron_swords/face_detection_superresolution/snir_bar.PNG"
     video = read_image(image_path)
     super_resolution_faces = video_face_detection_and_super_resolution(video)
