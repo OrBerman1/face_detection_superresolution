@@ -3,7 +3,6 @@ import os
 import cv2
 from PIL import ImageDraw, Image
 import numpy as np
-import math
 
 
 def read_video(video_path):
@@ -18,16 +17,16 @@ def read_video(video_path):
     return frames
 
 
-def read_image(image_path):
-    return [Image.open(f"{image_path}")]
-
-
 def read_images_from_dir(dir_path):
     images_names = os.listdir(dir_path)
     images_ls = []
     for image in images_names:
         images_ls.append(Image.open(f"{dir_path}/{image}"))
     return images_ls
+
+
+def read_image(image_path):
+    return [Image.open(f"{image_path}")]
 
 
 def save_images_to_dir(image_ls, dir_path="bb_examples"):
@@ -52,49 +51,14 @@ def pad_image_square(img: Image):
         return result
 
 
-def resize_image_to_power_of_2(img: Image):
-    def nearestPowerOf2(N):
-        # Calculate log2 of N
-        a = int(math.log2(N))
-
-        # If 2^a is equal to N, return N
-        if 2 ** a == N:
-            return N
-
-        # Return 2^(a + 1)
-        return 2 ** (a + 1)
-    img = pad_image_square(img)
-    width, height = img.size
-    closest = nearestPowerOf2(width)
-    return img.resize((closest, closest), Image.BILINEAR)
-
-
-def resize_image_even(img: Image):
-    width, height = img.size
-    if width % 2 != 0:
-        width += 1
-    if height % 2 != 0:
-        height += 1
-    return img.resize((width, height), Image.BILINEAR)
-
-
 def video_to_images_for_detection(video):
     new_video = []
     for frame in video:
         frame = np.array(pad_image_square(frame))
-        if frame[0].shape[0] > 3 and frame[0].shape[-1] > 3:
+        if frame.shape[0] > 3 and frame.shape[-1] > 3:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
         new_video.append(frame)
     return new_video
-
-
-def sharp_edges(img: Image):
-    img = np.array(img)
-    kernel = np.array([[0, -1, 0],
-                       [-1, 5, -1],
-                       [0, -1, 0]])
-    sharpened = cv2.filter2D(img, -1, kernel)
-    return Image.fromarray(sharpened)
 
 
 def draw_bbs_on_video(video, bboxes):
@@ -114,3 +78,12 @@ def draw_bbs_on_image(img, bbs: list):
         end = (bb[2], bb[3])
         image_to_draw.rectangle([start, end], outline="red")
     return img
+
+
+def sharp_edges(img):
+    img = np.array(img)
+    kernel = np.array([[0, -1, 0],
+                       [-1, 5, -1],
+                       [0, -1, 0]])
+    sharpened = cv2.filter2D(img, -1, kernel)
+    return sharpened
