@@ -2,14 +2,31 @@
 Script for performing super resolution on a given image or crops from an image.
 """
 import torch
+import torch.nn as nn
 import numpy as np
+import model.MSFSR as MSFSR
+from PIL import Image
+from yoloface_master.utils.image_utils import resize_image_to_power_of_2
 
-from PAN.codes.models.archs import PAN_arch
-from PAN.codes.utils.util import single_forward, tensor2img
-import cv2
+# import MSFSR.models.MSFSR as MSFSR
+from torchvision import transforms
 
 
-def load_upscaler(checkpoint_path, device="cpu", scale=2):
+class MSFSRmodel(nn.Module):
+    def __init__(self, stg1, stg2, stg3):
+        super().__init__()
+        self.stg1 = stg1
+        self.stg2 = stg2
+        self.stg3 = stg3
+
+    def forward(self, img):
+        out1 = self.stg1(img)[2]
+        out2 = self.stg2(out1)[2]
+        out3 = self.stg3(out2)[2]
+        return out3
+
+
+def load_upscaler(checkpoint_path, device="cpu"):
     """
     loads the super resolution model for a chosen scale.
     @param checkpoint_path: the path to the model checkpoint to load
@@ -17,22 +34,27 @@ def load_upscaler(checkpoint_path, device="cpu", scale=2):
     @param scale: the scale of the model to load: 2,3,4
     @return: the super resolution model
     """
-    assert scale in [2, 3, 4], f"no model with scale {scale} exists"
-    model = PAN_arch.PAN(in_nc=3, out_nc=3, nf=40, unf=24, nb=16, scale=scale)
-    model_weight = torch.load(checkpoint_path)
-    model.load_state_dict(model_weight)
-    model = model.to(device)
-    return model
+    X2_SR_net_stg1 = MSFSR.defineThreeStageGenerator(input_nc=3, output_nc=3)
+    X2_SR_net_stg2 = MSFSR.defineThreeStageGenerator(input_nc=3, output_nc=3)
+    X2_SR_net_stg3 = MSFSR.defineThreeStageGenerator(input_nc=3, output_nc=3)
 
+    weights1 = torch.load(f"{checkpoint_path}/model_stg1_state.pth")
+    weights2 = torch.load(f"{checkpoint_path}/model_stg2_state.pth")
+    weights3 = torch.load(f"{checkpoint_path}/model_stg3_state.pth")
 
-def load_upscaler_cv2(checkpoint_path, device="cpu", scale=2):
-    sr = cv2.dnn_superres.DnnSuperResImpl_create()
-    sr.readModel(checkpoint_path)
-    if "cuda" in device:
-        sr.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-        sr.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
-    sr.setModel("edsr", scale)
-    return sr
+    X2_SR_net_stg1.load_state_dict(weights1)
+    X2_SR_net_stg2.load_state_dict(weights2)
+    X2_SR_net_stg3.load_state_dict(weights3)
+
+    X2_SR_net_stg1.to(device)
+    X2_SR_net_stg1.eval()
+    X2_SR_net_stg2.to(device)
+    X2_SR_net_stg2.eval()
+    X2_SR_net_stg3.to(device)
+    X2_SR_net_stg3.eval()
+
+    model = MSFSRmodel(X2_SR_net_stg1, X2_SR_net_stg2, X2_SR_net_stg3).to(device)
+    return model.to(device)
 
 
 def img2tensor(img):
@@ -52,17 +74,25 @@ def upscale_image(img, model, device="cpu"):
     @param model: super resolution model that should return a new image
     @return: a new upsampled image
     """
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    img = img.astype(np.float32) / 255
-    imgt = img2tensor(img)
-    imgt = imgt[None, ...]
+    to_image = transforms.Compose([
+        transforms.ToPILImage()
+    ])
+    to_tensor = transforms.Compose([
+        transforms.ToTensor(),
+    ])
 
-    if device == "cpu":
-        output = single_forward(model, imgt)
-    else:
-        output = single_forward(model, imgt.cuda())
+    with torch.no_grad():
+        img = resize_image_to_power_of_2(Image.fromarray(img))
+        img = to_tensor(img)
+        img = torch.unsqueeze(img, 0)
+        img.to(device)
+        # img = img.permute(0, 3, 1, 2)
 
-    return tensor2img(output)
+        out = model(img.to(device))
+        output = out.cpu().clone()
+        output = output.squeeze(0)
+
+    return to_image(output)
 
 
 def upscale_crops(img, crops, model, margin, device="cpu"):
@@ -92,25 +122,3 @@ def upscale_crops(img, crops, model, margin, device="cpu"):
         upscaled_crops.append(output)
 
     return [item for item in upscaled_crops], img_crops
-
-
-def upscale_crops_cv2(img, crops, model, margin):
-    img_crops = []
-
-    for crop_coords in crops:
-        xl, yl, xr, yr = crop_coords
-        xl = max(0, xl - margin)
-        xr = min(img.shape[1], xr + margin)
-        yl = max(0, yl - margin)
-        yr = min(img.shape[0], yr + margin)
-        img_crops.append(img[yl:yr, xl:xr])
-
-    upscaled_crops = []
-    for crop in img_crops:
-        output = model.upsample(crop)
-        upscaled_crops.append(output)
-
-    return [item for item in upscaled_crops], img_crops
-
-
-

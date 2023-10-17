@@ -1,7 +1,6 @@
-import torch
-import models.archs.PAN_arch as PAN_arch
-import models.archs.SRResNet_arch as SRResNet_arch
-import models.archs.RCAN_arch as RCAN_arch
+import models as PAN_arch
+import models as SRResNet_arch
+import models as RCAN_arch
 
 
 # Generator

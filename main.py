@@ -1,7 +1,6 @@
-from argparser import parse_args
-from image_utils import read_video
+import torch
+from yoloface_master.utils.image_utils import read_video, read_image
 from detection_and_super_resolution import video_face_detection_and_super_resolution
-
 
 if __name__ == '__main__':
     # model = YoloDetector(target_size=720, device="cpu", min_face=20)
@@ -22,8 +21,10 @@ if __name__ == '__main__':
     #     video = cv2.cvtColor(cv2.imread(args.image_path), cv2.COLOR_BGR2RGB)
     # else:
     #     raise ValueError("Both video_path and image_path arguments are not set, one should be passed")
+
     # video_path = "VID-20231007-WA0155.mp4"
-    # video = read_video(video_path)[200:300]
-    image_path = "image.jpg"
-    image = rea
+    # video_path = "/home/user/iron_swords/face_detection_superresolution/video2.mp4"
+    # video = read_video(video_path)
+    image_path = "/home/user/iron_swords/face_detection_superresolution/snir bar.PNG"
+    video = read_image(image_path)
     super_resolution_faces = video_face_detection_and_super_resolution(video)

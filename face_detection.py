@@ -1,6 +1,6 @@
 from face_detector import YoloDetector
 from argparser import parse_args
-from utils import image_utils
+from yoloface_master.utils import image_utils
 
 
 def detect_faces_in_images(model, img, bs):

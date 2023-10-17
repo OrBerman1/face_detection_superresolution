@@ -3,6 +3,7 @@ import os
 import cv2
 from PIL import ImageDraw, Image
 import numpy as np
+import math
 
 
 def read_video(video_path):
@@ -15,6 +16,10 @@ def read_video(video_path):
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             frames.append(Image.fromarray(image))
     return frames
+
+
+def read_image(image_path):
+    return [Image.open(f"{image_path}")]
 
 
 def read_images_from_dir(dir_path):
@@ -45,6 +50,32 @@ def pad_image_square(img: Image):
         result = Image.new(img.mode, (height, height), (0, 0, 0))
         result.paste(img, ((height - width) // 2, 0))
         return result
+
+
+def resize_image_to_power_of_2(img: Image):
+    def nearestPowerOf2(N):
+        # Calculate log2 of N
+        a = int(math.log2(N))
+
+        # If 2^a is equal to N, return N
+        if 2 ** a == N:
+            return N
+
+        # Return 2^(a + 1)
+        return 2 ** (a + 1)
+    img = pad_image_square(img)
+    width, height = img.size
+    closest = nearestPowerOf2(width)
+    return img.resize((closest, closest), Image.BILINEAR)
+
+
+def resize_image_even(img: Image):
+    width, height = img.size
+    if width % 2 != 0:
+        width += 1
+    if height % 2 != 0:
+        height += 1
+    return img.resize((width, height), Image.BILINEAR)
 
 
 def video_to_images_for_detection(video):

@@ -2,7 +2,8 @@ import functools
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import models.archs.arch_util as arch_util
+import models as arch_util
+
 
 class PA(nn.Module):
     '''PA is pixel attention'''

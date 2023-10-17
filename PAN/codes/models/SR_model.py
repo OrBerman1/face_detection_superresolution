@@ -5,10 +5,10 @@ import torch
 import torch.nn as nn
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 import numpy as np
-import models.networks as networks
-import models.lr_scheduler as lr_scheduler
+import models as networks
+import models as lr_scheduler
 from .base_model import BaseModel
-from models.loss import CharbonnierLoss, FSLoss, GradientLoss
+from models import CharbonnierLoss
 
 logger = logging.getLogger('base')
 

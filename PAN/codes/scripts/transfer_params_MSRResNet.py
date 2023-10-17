@@ -3,7 +3,7 @@ import sys
 import torch
 try:
     sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
-    import models.archs.SRResNet_arch as SRResNet_arch
+    import models as SRResNet_arch
 except ImportError:
     pass
 
