@@ -59,11 +59,11 @@ def upscale_image(img, model, device="cpu"):
     else:
         output = single_forward(model, imgt.cuda())
 
-    # return sharp_edges(tensor2img(output))
-    return tensor2img(output)
+    return sharp_edges(tensor2img(output))
+    # return tensor2img(output)
 
 
-def upscale_crops(img, crops, model, device="cpu"):
+def upscale_crops(img, crops, model, margin, device="cpu"):
     """
     this function receives an image, crops coordinates and a super resolution model. The function upsamples each
     crop with super resolution
@@ -77,10 +77,10 @@ def upscale_crops(img, crops, model, device="cpu"):
 
     for crop_coords in crops:
         xl, yl, xr, yr = crop_coords
-        xl = max(0, xl - 75)
-        xr = min(img.shape[1], xr + 75)
-        yl = max(0, yl - 75)
-        yr = min(img.shape[0], yr + 75)
+        xl = max(0, xl - margin)
+        xr = min(img.shape[1], xr + margin)
+        yl = max(0, yl - margin)
+        yr = min(img.shape[0], yr + margin)
         img_crops.append(img[yl:yr, xl:xr])
 
     upscaled_crops = []
