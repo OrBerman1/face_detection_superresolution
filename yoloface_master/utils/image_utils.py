@@ -55,6 +55,8 @@ def video_to_images_for_detection(video):
     new_video = []
     for frame in video:
         frame = np.array(pad_image_square(frame))
+        if frame.shape[0] > 3 and frame.shape[-1] > 3:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
         new_video.append(frame)
     return new_video
 
