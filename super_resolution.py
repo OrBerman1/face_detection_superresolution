@@ -48,6 +48,7 @@ def upscale_image(img, model, device="cpu"):
     @param model: super resolution model that should return a new image
     @return: a new upsampled image
     """
+    img = sharp_edges(img)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     img = img.astype(np.float32) / 255
     imgt = img2tensor(img)
