@@ -25,6 +25,10 @@ def read_images_from_dir(dir_path):
     return images_ls
 
 
+def read_image(image_path):
+    return [Image.open(f"{image_path}")]
+
+
 def save_images_to_dir(image_ls, dir_path="bb_examples"):
     os.makedirs(dir_path, exist_ok=True)
     for i, image in enumerate(image_ls):
@@ -51,6 +55,8 @@ def video_to_images_for_detection(video):
     new_video = []
     for frame in video:
         frame = np.array(pad_image_square(frame))
+        if frame.shape[0] > 3 and frame.shape[-1] > 3:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
         new_video.append(frame)
     return new_video
 
@@ -72,3 +78,12 @@ def draw_bbs_on_image(img, bbs: list):
         end = (bb[2], bb[3])
         image_to_draw.rectangle([start, end], outline="red")
     return img
+
+
+def sharp_edges(img):
+    img = np.array(img)
+    kernel = np.array([[0, -1, 0],
+                       [-1, 5, -1],
+                       [0, -1, 0]])
+    sharpened = cv2.filter2D(img, -1, kernel)
+    return sharpened

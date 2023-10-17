@@ -3,6 +3,7 @@ Script for performing super resolution on a given image or crops from an image.
 """
 import torch
 import numpy as np
+from yoloface_master.utils.image_utils import sharp_edges
 
 from PAN.codes.models.archs import PAN_arch
 from PAN.codes.utils.util import single_forward, tensor2img
@@ -42,6 +43,7 @@ def upscale_image(img, model, device="cpu"):
     @param model: super resolution model that should return a new image
     @return: a new upsampled image
     """
+    img = sharp_edges(img)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     img = img.astype(np.float32) / 255
     imgt = img2tensor(img)
@@ -52,7 +54,7 @@ def upscale_image(img, model, device="cpu"):
     else:
         output = single_forward(model, imgt.cuda())
 
-    return tensor2img(output)
+    return sharp_edges(tensor2img(output))
 
 
 def upscale_crops(img, crops, model, margin, device="cpu"):
