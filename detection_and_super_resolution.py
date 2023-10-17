@@ -26,7 +26,8 @@ def video_face_detection_and_super_resolution(video, args):
     for i, (frame, bb) in enumerate(zip(video, bbs)):
         if len(bb) > 0:
             upscaled_crops = upscale_crops(frame, bb, model, args.margin, args.device)
-            for j, pil_img in enumerate(upscaled_crops):
+            for j, item in enumerate(upscaled_crops):
+                pil_img = Image.fromarray(item)
                 if args.save_path is not None:
                     pil_img.save(f"{args.save_path}/frame_{i}_face_{j}_scale={args.scale}.jpg")
                 super_resolution_faces.append(pil_img)
