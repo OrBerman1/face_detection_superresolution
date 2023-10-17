@@ -6,7 +6,7 @@ import torch.nn as nn
 import numpy as np
 import model.MSFSR as MSFSR
 from PIL import Image
-from yoloface_master.utils.image_utils import resize_image_to_power_of_2
+from yoloface_master.utils.image_utils import resize_image_to_power_of_2, sharp_edges
 
 # import MSFSR.models.MSFSR as MSFSR
 from torchvision import transforms
@@ -21,9 +21,9 @@ class MSFSRmodel(nn.Module):
 
     def forward(self, img):
         out1 = self.stg1(img)[2]
-        out2 = self.stg2(out1)[2]
-        out3 = self.stg3(out2)[2]
-        return out3
+        # out2 = self.stg2(out1)[2]
+        # out3 = self.stg3(out2)[2]
+        return out1
 
 
 def load_upscaler(checkpoint_path, device="cpu"):
@@ -92,7 +92,7 @@ def upscale_image(img, model, device="cpu"):
         output = out.cpu().clone()
         output = output.squeeze(0)
 
-    return to_image(output)
+    return sharp_edges(to_image(output))
 
 
 def upscale_crops(img, crops, model, margin, device="cpu"):

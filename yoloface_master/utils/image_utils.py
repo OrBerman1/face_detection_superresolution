@@ -88,6 +88,15 @@ def video_to_images_for_detection(video):
     return new_video
 
 
+def sharp_edges(img: Image):
+    img = np.array(img)
+    kernel = np.array([[0, -1, 0],
+                       [-1, 5, -1],
+                       [0, -1, 0]])
+    sharpened = cv2.filter2D(img, -1, kernel)
+    return Image.fromarray(sharpened)
+
+
 def draw_bbs_on_video(video, bboxes):
     draw_frames = []
     for frame, bbs in zip(video, bboxes):
