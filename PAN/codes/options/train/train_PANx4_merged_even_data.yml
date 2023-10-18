@@ -1,5 +1,5 @@
 #### general settings
-name: PANx4_celeba_sharp
+name: PANx4_merged_even_data
 use_tb_logger: True
 model: sr
 distortion: sr
@@ -10,23 +10,23 @@ gpu_ids: [0]
 #### datasets
 datasets:
   train:
-    name: DF2K
+    name: even_merged
     mode: LQGT
-    dataroot_GT: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_sub_extracted
-    dataroot_LQ: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_lr_4_sub_extracted_sharp
+    dataroot_GT: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_even_data_train
+    dataroot_LQ: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_even_data_train_lr_4
     
     use_shuffle: true
     n_workers: 6  # per GPU
-    batch_size: 32
+    batch_size: 1
     GT_size: 256
     use_flip: true
     use_rot: true
     color: RGB
   val:
-    name: Set5
+    name: even_merged
     mode: LQGT
-    dataroot_GT: ../datasets/Set5/HR
-    dataroot_LQ: ../datasets/Set5/LR_bicubic/X4
+    dataroot_GT: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_even_data_val
+    dataroot_LQ: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_even_data_val_lr_4
 
 #### network structures
 network_G:
@@ -40,17 +40,17 @@ network_G:
   
 #### path
 path:
-  pretrain_model_G: /home/user/iron_swords/face_detection_superresolution/PAN/experiments/pretrained_models/PANx4_DF2K.pth
+  pretrain_model_G: ~
   strict_load: true
   resume_state: ~
 
 #### training settings: learning rate scheme, loss
 train:
-  lr_G: !!float 7e-6
+  lr_G: !!float 5e-5
   lr_scheme: CosineAnnealingLR_Restart
   beta1: 0.9
   beta2: 0.99
-  niter: 50000
+  niter: 2000000
   warmup_iter: -1  # no warm up
   T_period: [250000, 250000, 250000, 250000]
   restarts: [250000, 500000, 750000]
@@ -61,7 +61,7 @@ train:
   pixel_weight: 1.0
 
   manual_seed: 10
-  val_freq: !!float 5000e3
+  val_freq: !!float 5e3
 
 #### logger
 logger:

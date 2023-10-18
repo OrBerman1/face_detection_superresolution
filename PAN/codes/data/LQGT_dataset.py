@@ -26,10 +26,16 @@ class LQGTDataset(data.Dataset):
         
         assert self.paths_GT, 'Error: GT path is empty.'
         if self.paths_LQ and self.paths_GT:
-            assert len(self.paths_LQ) == len(
-                self.paths_GT
-            ), 'GT and LQ datasets have different number of images - {}, {}.'.format(
-                len(self.paths_LQ), len(self.paths_GT))
+            # assert len(self.paths_LQ) == len(
+            #     self.paths_GT
+            # ), 'GT and LQ datasets have different number of images - {}, {}.'.format(
+            #     len(self.paths_LQ), len(self.paths_GT))
+            if len(self.paths_LQ) < len(self.paths_GT):
+                self.paths_GT = [f"{'/'.join(self.paths_GT[0].split('/')[:-1])}/{path.split('/')[-1]}"
+                                 for path in self.paths_LQ]
+            elif len(self.paths_GT) < len(self.paths_LQ):
+                self.paths_LQ = [f"{'/'.join(self.paths_LQ[0].split('/')[:-1])}/{path.split('/')[-1]}"
+                                 for path in self.paths_GT]
         self.random_scale_list = [1]
 
     def _init_lmdb(self):

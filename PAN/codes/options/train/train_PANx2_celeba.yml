@@ -1,9 +1,9 @@
 #### general settings
-name: PANx4_celeba_sharp
+name: PANx2_DF2K_celeba_sharp
 use_tb_logger: True
 model: sr
 distortion: sr
-scale: 4
+scale: 2
 save_img: False
 gpu_ids: [0]
 
@@ -13,11 +13,11 @@ datasets:
     name: DF2K
     mode: LQGT
     dataroot_GT: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_sub_extracted
-    dataroot_LQ: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_lr_4_sub_extracted_sharp
+    dataroot_LQ: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_lr_2_sub_extracted_sharp
     
     use_shuffle: true
     n_workers: 6  # per GPU
-    batch_size: 32
+    batch_size: 16
     GT_size: 256
     use_flip: true
     use_rot: true
@@ -40,7 +40,7 @@ network_G:
   
 #### path
 path:
-  pretrain_model_G: /home/user/iron_swords/face_detection_superresolution/PAN/experiments/pretrained_models/PANx4_DF2K.pth
+  pretrain_model_G: /home/user/iron_swords/face_detection_superresolution/PAN/experiments/pretrained_models/PANx2_DF2K.pth
   strict_load: true
   resume_state: ~
 
