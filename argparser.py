@@ -7,7 +7,7 @@ args.add_argument("--min-face", type=int, default=10, help="minimum possible siz
 args.add_argument("--visualize-bbs", default=True, action="store_true")
 args.add_argument("--margin", type=int, help="enlarge the bbs by a margin", default=20)
 args.add_argument("--save-path", type=str, help="path to where to save output"
-                                                "if you dont wont to save the faces enter None", default="./msfsr_results_image")
+                                                "if you dont wont to save the faces enter None", default="results_for_even/sharp_edges_results")
 args.add_argument("--checkpoint", type=str, help="path to the model checkpoint", default="/home/user/iron_swords/face_detection_superresolution/MSFSR/pretrained_weights/MSFSR")
 args.add_argument("--device", type=str, default="cuda")
 

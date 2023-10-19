@@ -119,6 +119,7 @@ def upscale_crops(img, crops, model, margin, device="cpu"):
     upscaled_crops = []
     for crop in img_crops:
         output = upscale_image(crop, model, device)
+        # output = sharp_edges(Image.fromarray(img))
         upscaled_crops.append(output)
 
     return [item for item in upscaled_crops], img_crops
