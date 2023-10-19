@@ -39,20 +39,24 @@ def get_all_paths(dataset_path):
     return full_paths_ls
 
 
-def train_val_split(path_to_datasets, data_dir, path_to_save):
+def train_val_split(path_to_datasets, data_dir, path_to_save, lower = 0, upper = 2000):
     paths = []
     for dataset in path_to_datasets:
         paths += get_all_paths(dataset)
 
     os.makedirs(os.path.join(path_to_save, f"{data_dir}_train"), exist_ok=True)
     os.makedirs(os.path.join(path_to_save, f"{data_dir}_val"), exist_ok=True)
-
+    new_width, new_height = 180, 216
     random.shuffle(paths)
     train_paths = paths[:int(len(paths) * 0.8)]
     val_paths = [x for x in paths if x not in train_paths]
 
     for pth in tqdm.tqdm(train_paths, total=len(train_paths)):
         cur_img = Image.open(pth)
+        w, h = cur_img.size
+        if(w > upper or h > upper or h < lower or w < lower):
+            continue
+        cur_img = cur_img.resize((new_width, new_height), Image.BILINEAR)
         cur_img.save(os.path.join(path_to_save, f"{data_dir}_train", os.path.basename(pth)))
 
     for pth in tqdm.tqdm(val_paths, total=len(val_paths)):
@@ -65,18 +69,23 @@ def create_lr_data_thread(tasks: queue.Queue, path_to_datasets, data_dir, scale)
         try:
             task = tasks.get()
             img = cv2.imread(task)
-            img = np.array(resize_image_so_divide(Image.fromarray(img), scale))
-            lr_img = cv2.resize(img, None, fx=1 / scale, fy=1 / scale, interpolation=cv2.INTER_CUBIC)
+            # img = np.array(resize_image_so_divide(Image.fromarray(img), scale))
+            try:
+                lr_img = cv2.resize(img, None, fx=1 / scale, fy=1 / scale, interpolation=cv2.INTER_CUBIC)
+            except:
+                os.remove(task)
+                print(f"{task} was removed")
+                continue
             cv2.imwrite(os.path.join(path_to_datasets, f"{data_dir}_lr_{scale}", os.path.basename(task)), lr_img)
         except queue.Empty:
             pass
 
 
-def create_lr_data(path_to_datasets, data_dir, scale, num_threads=20):
+def create_lr_data(path_to_datasets, data_dir, scale, num_threads=5):
     os.makedirs(os.path.join(path_to_datasets, f"{data_dir}_lr_{scale}"), exist_ok=True)
     tasks = queue.Queue()
-    for pth in glob.glob(f"{path_to_datasets}/{data_dir}/*"):
-        tasks.put(pth)
+    for pth in os.listdir(os.path.join(path_to_datasets, data_dir)):
+        tasks.put(f"{path_to_datasets}/{data_dir}/{pth}")
     threads = []
     for i in range(num_threads):
         t = Thread(target=create_lr_data_thread, args=(tasks, path_to_datasets, data_dir, scale))
@@ -92,13 +101,14 @@ def create_lr_data(path_to_datasets, data_dir, scale, num_threads=20):
 
 
 if __name__ == '__main__':
-    train_val_split(["/home/user/iron_swords/face_detection_superresolution/edding_data/faces_from_images",
-                     "/home/user/iron_swords/face_detection_superresolution/edding_data/faces_from_videos",
-                     "/home/user/iron_swords/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_train",
-                     "/home/user/iron_swords/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_val"],
-                    "merged_even_data", path_to_save="/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged")
+    train_val_split([r"C:/Users\lazar\Projects/face_detection_superresolution\edding_data/faces_from_images",
+                     r"C:/Users\lazar\Projects\face_detection_superresolution\edding_data\faces_from_videos",
+                     r"C:\Users\lazar\Projects\face_detection_superresolution\PAN\datasets\celeba_original\img_align_celeba_train",
+                     r"C:\Users\lazar\Projects\face_detection_superresolution\PAN\datasets\celeba_original\img_align_celeba_val"],
+                    "merged_filtered_even_data", path_to_save=r"C:\Users\lazar\Projects\face_detection_superresolution\PAN\datasets/even_merged",
+                    upper=300)
     print("finished train test split")
-    create_lr_data("/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged", "merged_even_data_train", 4)
-    create_lr_data("/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged", "merged_even_data_val", 4)
+    create_lr_data(r"C:\Users\lazar\Projects\face_detection_superresolution\PAN\datasets\even_merged", "merged_filtered_even_data_train", 4)
+    create_lr_data(r"C:\Users\lazar\Projects\face_detection_superresolution\PAN\datasets\even_merged", "merged_filtered_even_data_val", 4)
     # get_min_and_max_size("/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_even_data_train")
     # get_min_and_max_size("/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_even_data_val")

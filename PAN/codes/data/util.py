@@ -77,6 +77,7 @@ def read_img(env, path, size=None):
     return: Numpy float32, HWC, BGR, [0,1]"""
     if env is None:  # img
         img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     else:
         img = _read_img_lmdb(env, path, size)
     img = img.astype(np.float32) / 255.
@@ -174,8 +175,8 @@ def augment(img_list, hflip=True, rot=True):
             img = img[:, ::-1, :]
         if vflip:
             img = img[::-1, :, :]
-        if rot90:
-            img = img.transpose(1, 0, 2)
+        # if rot90:
+        #     img = img.transpose(1, 0, 2)
         return img
 
     return [_augment(img) for img in img_list]

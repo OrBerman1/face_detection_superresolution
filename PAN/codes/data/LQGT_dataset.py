@@ -99,21 +99,21 @@ class LQGTDataset(data.Dataset):
         if self.opt['phase'] == 'train':
             # if the image size is too small
             H, W, _ = img_GT.shape
-            if H < GT_size or W < GT_size:
-                img_GT = cv2.resize(img_GT, (GT_size, GT_size), interpolation=cv2.INTER_LINEAR)
-                # using matlab imresize
-                img_LQ = util.imresize_np(img_GT, 1 / scale, True)
-                if img_LQ.ndim == 2:
-                    img_LQ = np.expand_dims(img_LQ, axis=2)
+            # if H < GT_size or W < GT_size:
+            #     img_GT = cv2.resize(img_GT, (GT_size, GT_size), interpolation=cv2.INTER_LINEAR)
+            #     # using matlab imresize
+            #     img_LQ = util.imresize_np(img_GT, 1 / scale, True)
+            #     if img_LQ.ndim == 2:
+            #         img_LQ = np.expand_dims(img_LQ, axis=2)
 
             H, W, C = img_LQ.shape
-            LQ_size = GT_size // scale
-            # randomly crop
-            rnd_h = random.randint(0, max(0, H - LQ_size))
-            rnd_w = random.randint(0, max(0, W - LQ_size))
-            img_LQ = img_LQ[rnd_h:rnd_h + LQ_size, rnd_w:rnd_w + LQ_size, :]
-            rnd_h_GT, rnd_w_GT = int(rnd_h * scale), int(rnd_w * scale)
-            img_GT = img_GT[rnd_h_GT:rnd_h_GT + GT_size, rnd_w_GT:rnd_w_GT + GT_size, :]
+            # LQ_size = GT_size // scale
+            # # randomly crop
+            # rnd_h = random.randint(0, max(0, H - LQ_size))
+            # rnd_w = random.randint(0, max(0, W - LQ_size))
+            # img_LQ = img_LQ[rnd_h:rnd_h + LQ_size, rnd_w:rnd_w + LQ_size, :]
+            # rnd_h_GT, rnd_w_GT = int(rnd_h * scale), int(rnd_w * scale)
+            # img_GT = img_GT[rnd_h_GT:rnd_h_GT + GT_size, rnd_w_GT:rnd_w_GT + GT_size, :]
 
 #             print(img_GT.shape, img_LQ.shape)
             # augmentation - flip, rotate

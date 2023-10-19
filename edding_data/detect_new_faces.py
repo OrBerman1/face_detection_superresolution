@@ -37,9 +37,9 @@ def detect_on_all_videos_in_directory(path_to_dir, path_to_save_dir):
         target_size = max(video[0].shape[0], video[0].shape[1])
         model = load_face_detector(target_size=target_size, device="cuda", min_face=100)
         bboxes = []
-        for frame in video:
-            bboxes += detect_faces_in_images(model, [frame], 1)
-        # bboxes = detect_faces_in_images(model, video, 1)
+        # for frame in video:
+        #     bboxes += detect_faces_in_images(model, [frame], 1)
+        bboxes = detect_faces_in_images(model, video, 5)
         for i, (bb_frame, frame) in enumerate(zip(bboxes, video)):
             for j, bb in enumerate(bb_frame):
                 xl, yl, xr, yr = bb
@@ -51,15 +51,18 @@ def detect_on_all_videos_in_directory(path_to_dir, path_to_save_dir):
                 face = Image.fromarray(face)
                 face.save(f"{path_to_save_dir}/{video_name}___frame_{i}_face_{j}.png")
         print("end video")
-        del video
-        del bboxes
-        del model
-        del face
-        gc.collect()
         try:
-            print(video)
+            del video
+            del bboxes
+            del model
+            del face
+            gc.collect()
+            try:
+                print(video)
+            except:
+                print("success")
         except:
-            print("success")
+            pass
 
 
 def detect_on_all_images_in_directory(path_to_dir, path_to_save_dir):
@@ -93,9 +96,7 @@ def detect_on_all_images_in_directory(path_to_dir, path_to_save_dir):
                 face.save(f"{path_to_save_dir}/{image_name}___face_{j}.png")
 
 
-
-
-detect_on_all_videos_in_directory("/home/user/iron_swords/face_detection_superresolution/even_videos",
+detect_on_all_videos_in_directory(f"{os.getcwd()}/even_videos",
                                   "faces_from_videos")
 # detect_on_all_images_in_directory("/home/user/iron_swords/face_detection_superresolution/even_videos",
 #                                   "faces_from_images")
