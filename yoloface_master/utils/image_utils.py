@@ -3,6 +3,24 @@ import os
 import cv2
 from PIL import ImageDraw, Image
 import numpy as np
+import math
+
+
+def resize_image_to_power_of_2(img: Image):
+    def nearestPowerOf2(N):
+        # Calculate log2 of N
+        a = int(math.log2(N))
+
+        # If 2^a is equal to N, return N
+        if 2 ** a == N:
+            return N
+
+        # Return 2^(a + 1)
+        return 2 ** (a + 1)
+    img = pad_image_square(img)
+    width, height = img.size
+    closest = nearestPowerOf2(width)
+    return img.resize((closest, closest), Image.BILINEAR)
 
 
 def read_video(video_path):

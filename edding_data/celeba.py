@@ -3,11 +3,20 @@ import os
 import random
 import time
 
+import numpy as np
 from PIL import Image
 import cv2
 import tqdm
 from threading import Thread
 import queue
+import math
+
+
+def resize_image_so_divide(img: Image, divider):
+    width, height = img.size
+    new_width = width - width % divider
+    new_height = height - height % divider
+    return img.resize((new_width, new_height), Image.BILINEAR)
 
 
 def get_min_and_max_size(dir_path):
@@ -56,13 +65,14 @@ def create_lr_data_thread(tasks: queue.Queue, path_to_datasets, data_dir, scale)
         try:
             task = tasks.get()
             img = cv2.imread(task)
+            img = np.array(resize_image_so_divide(Image.fromarray(img), scale))
             lr_img = cv2.resize(img, None, fx=1 / scale, fy=1 / scale, interpolation=cv2.INTER_CUBIC)
             cv2.imwrite(os.path.join(path_to_datasets, f"{data_dir}_lr_{scale}", os.path.basename(task)), lr_img)
         except queue.Empty:
             pass
 
 
-def create_lr_data(path_to_datasets, data_dir, scale, num_threads=1):
+def create_lr_data(path_to_datasets, data_dir, scale, num_threads=20):
     os.makedirs(os.path.join(path_to_datasets, f"{data_dir}_lr_{scale}"), exist_ok=True)
     tasks = queue.Queue()
     for pth in glob.glob(f"{path_to_datasets}/{data_dir}/*"):
