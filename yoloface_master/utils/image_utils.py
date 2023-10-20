@@ -22,11 +22,11 @@ def read_images_from_dir(dir_path):
     images_ls = []
     for image in images_names:
         images_ls.append(Image.open(f"{dir_path}/{image}"))
-    return images_ls
+    return images_ls, images_names
 
 
 def read_image(image_path):
-    return [Image.open(f"{image_path}")]
+    return [Image.open(f"{image_path}")], [os.path.basename(image_path)]
 
 
 def save_images_to_dir(image_ls, dir_path="bb_examples"):
