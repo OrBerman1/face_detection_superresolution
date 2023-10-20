@@ -3,7 +3,7 @@ import argparse
 args = argparse.ArgumentParser()
 args.add_argument("--detection_batch_size", type=int, default=10, help="number of frames for inference batch,"
                                                                        "-1 means all the video in one batch")
-args.add_argument("--min-face", type=int, default=10, help="minimum possible size of faces in image")
+args.add_argument("--min_face", type=int, default=10, help="minimum possible size of faces in image")
 args.add_argument("--visualize-bbs", default=True, action="store_true")
 args.add_argument("--scale", type=int, help="Super resolution model scale to use", default=2)
 args.add_argument("--save_path", type=str, help="path to where to save output", default=None)
