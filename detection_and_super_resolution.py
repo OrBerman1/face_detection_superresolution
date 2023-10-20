@@ -22,14 +22,17 @@ def video_face_detection_and_super_resolution(video, args):
     model.eval()
 
     os.makedirs(f"{args.save_path}", exist_ok=True)
+    os.makedirs(f"{args.save_path}/original", exist_ok=True)
     super_resolution_faces = []
     for i, (frame, bb) in enumerate(zip(video, bbs)):
         if len(bb) > 0:
-            upscaled_crops = upscale_crops(frame, bb, model, args.margin, args.device)
-            for j, item in enumerate(upscaled_crops):
+            upscaled_crops, img_crops = upscale_crops(frame, bb, model, args.margin, args.device)
+            for j, (item, crop) in enumerate(zip(upscaled_crops, img_crops)):
                 pil_img = Image.fromarray(item)
+                pil_crop = Image.fromarray(crop)
                 if args.save_path is not None:
                     pil_img.save(f"{args.save_path}/frame_{i}_face_{j}_scale={args.scale}.jpg")
+                    pil_crop.save(f"{args.save_path}/original/frame_{i}_face_{j}_scale={args.scale}.jpg")
                 super_resolution_faces.append(pil_img)
     return super_resolution_faces
 

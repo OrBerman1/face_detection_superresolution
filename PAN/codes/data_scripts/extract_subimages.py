@@ -9,6 +9,7 @@ from PIL import Image
 sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
 from codes.utils.util import ProgressBar  # noqa: E402
 import codes.data.util as data_util  # noqa: E402
+from yoloface_master.utils.image_utils import sharp_edges
 
 
 def main():
@@ -33,14 +34,17 @@ def main():
 #         save_GT_folder = '../../datasets/DIV2K/DIV2K800_sub'
 #         save_LR_folder = '../../datasets/DIV2K/DIV2K800_sub_bicLRx4'
 
-        GT_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_train'
-        LR_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_train_lr_2'
-        save_GT_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_sub_extracted'
-        save_LR_folder = 'C:/Users/emils/Documents/face_detection_superresolution/PAN/datasets/celeba_extract/img_align_celeba_train_lr_2_sub_extracted_blur'
+        GT_folder = '/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_filtered_even_data_train'
+        LR_folder = '/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_filtered_even_data_train_lr_4'
+        save_GT_folder = '/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged_extracted/merged_filtered_even_data_train_sharp'
+        save_LR_folder = '/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged_extracted/merged_filtered_even_data_train_lr_4_sharp'
+
+        os.makedirs(save_GT_folder, exist_ok=True)
+        os.makedirs(save_LR_folder, exist_ok=True)
         
-        scale_ratio = 2
+        scale_ratio = 4
         # crop_sz = 360  # the size of each sub-image (GT)
-        crop_sz = (216, 168)
+        crop_sz = (216, 180)
         step = 180  # step of the sliding crop window (GT)
     
         thres_sz = 48  # size threshold
@@ -73,6 +77,7 @@ def main():
         opt['step'] = step
         opt['thres_sz'] = thres_sz
         opt['blur'] = False
+        opt['sharp'] = False
         extract_signle(opt)
         print('process LR...')
         opt['input_folder'] = LR_folder
@@ -81,6 +86,7 @@ def main():
         opt['step'] = step // scale_ratio
         opt['thres_sz'] = thres_sz // scale_ratio
         opt['blur'] = True
+        opt['sharp'] = True
         extract_signle(opt)
         assert len(data_util._get_paths_from_images(save_GT_folder)) == len(
             data_util._get_paths_from_images(
@@ -148,7 +154,9 @@ def worker(path, opt):
             else:
                 crop_img = img[x:x + crop_sz_h, y:y + crop_sz_w, :]
             if opt['blur']:
-                crop_img = cv2.blur(img, (3,3))
+                crop_img = cv2.blur(img, (3, 3))
+            if opt['sharp']:
+                crop_img = sharp_edges(crop_img)
             crop_img = np.ascontiguousarray(crop_img)
             cv2.imwrite(
                 osp.join(opt['save_folder'],

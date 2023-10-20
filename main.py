@@ -8,7 +8,7 @@ if args.video_path is None and args.image_path is None:
 if args.video_path and args.image_path:
     raise IOError("video_path or image_path most be None")
 if args.video_path:
-    video = read_video(args.video_path)[200:300]
+    video = read_video(args.video_path)
 else:
     video = read_image(args.image_path)
 super_resolution_faces = video_face_detection_and_super_resolution(video, args)

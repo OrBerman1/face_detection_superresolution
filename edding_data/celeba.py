@@ -61,6 +61,10 @@ def train_val_split(path_to_datasets, data_dir, path_to_save, lower = 0, upper =
 
     for pth in tqdm.tqdm(val_paths, total=len(val_paths)):
         cur_img = Image.open(pth)
+        w, h = cur_img.size
+        if (w > upper or h > upper or h < lower or w < lower):
+            continue
+        cur_img = cur_img.resize((new_width, new_height), Image.BILINEAR)
         cur_img.save(os.path.join(path_to_save, f"{data_dir}_val", os.path.basename(pth)))
 
 
@@ -101,14 +105,14 @@ def create_lr_data(path_to_datasets, data_dir, scale, num_threads=5):
 
 
 if __name__ == '__main__':
-    train_val_split([r"C:/Users\lazar\Projects/face_detection_superresolution\edding_data/faces_from_images",
-                     r"C:/Users\lazar\Projects\face_detection_superresolution\edding_data\faces_from_videos",
-                     r"C:\Users\lazar\Projects\face_detection_superresolution\PAN\datasets\celeba_original\img_align_celeba_train",
-                     r"C:\Users\lazar\Projects\face_detection_superresolution\PAN\datasets\celeba_original\img_align_celeba_val"],
-                    "merged_filtered_even_data", path_to_save=r"C:\Users\lazar\Projects\face_detection_superresolution\PAN\datasets/even_merged",
-                    upper=300)
-    print("finished train test split")
-    create_lr_data(r"C:\Users\lazar\Projects\face_detection_superresolution\PAN\datasets\even_merged", "merged_filtered_even_data_train", 4)
-    create_lr_data(r"C:\Users\lazar\Projects\face_detection_superresolution\PAN\datasets\even_merged", "merged_filtered_even_data_val", 4)
+    # train_val_split([r"/home/user/iron_swords/face_detection_superresolution/edding_data/faces_from_images",
+    #                  r"/home/user/iron_swords/face_detection_superresolution/edding_data/faces_from_videos",
+    #                  r"/home/user/iron_swords/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_train",
+    #                  r"/home/user/iron_swords/face_detection_superresolution/PAN/datasets/celeba_original/img_align_celeba_val"],
+    #                 "merged_filtered_even_data", path_to_save=r"/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged",
+    #                 upper=300)
+    # print("finished train test split")
+    create_lr_data(r"/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged", "merged_filtered_even_data_train", 2)
+    create_lr_data(r"/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged", "merged_filtered_even_data_val", 2)
     # get_min_and_max_size("/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_even_data_train")
     # get_min_and_max_size("/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_even_data_val")
