@@ -3,6 +3,7 @@ from super_resolution import load_upscaler, upscale_crops
 from PIL import Image
 import os
 import warnings
+from utils.image_utils import get_bbs_size_of_images
 
 
 def video_face_detection_and_super_resolution(video, args, names=None):
@@ -17,10 +18,13 @@ def video_face_detection_and_super_resolution(video, args, names=None):
     if args.save_path is None:
         path = args.video_path if args.video_path else args.image_path
         args.save_path = f"results/{os.path.basename(path)}"
-    if args.visualize_bbs:
-        video, bbs, _ = face_detection.detection_pipeline(video, args)
+    if not args.detector_off:   # use detector
+        if args.visualize_bbs:
+            video, bbs, _ = face_detection.detection_pipeline(video, args)
+        else:
+            video, bbs = face_detection.detection_pipeline(video, args)
     else:
-        video, bbs = face_detection.detection_pipeline(video, args)
+        video, bbs = get_bbs_size_of_images(video)
     model = load_upscaler(args.device, args.scale)
     model.eval()
 

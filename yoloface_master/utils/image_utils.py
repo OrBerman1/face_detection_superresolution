@@ -71,6 +71,15 @@ def draw_bbs_on_video(video, bboxes):
     return draw_frames
 
 
+def get_bbs_size_of_images(images):
+    bbs = []
+    images = video_to_images_for_detection(images)
+    for img in images:
+        width, height = img.size
+        bbs.append([0, 0, width-1, height-1])
+    return images, bbs
+
+
 def draw_bbs_on_image(img, bbs: list):
     image_to_draw = ImageDraw.Draw(img)
     for bb in bbs:

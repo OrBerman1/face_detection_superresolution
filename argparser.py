@@ -19,6 +19,7 @@ args.add_argument("--keep_original_names", action="store_true", default=False, h
 args.add_argument("--sharp_edges", action="store_true", default=False, help="use edges enhancing algorithm"
                                                                             "before the super-resolution model. this "
                                                                             "might yield better or worse results")
+args.add_argument("--detector_off", action="store_true", default=False, help="if true skip the face detector phase")
 
 args.add_argument("--device", type=str, default="cuda")
 
