@@ -24,12 +24,12 @@ def video_face_detection_and_super_resolution(video, args, names=None):
         else:
             video, bbs = face_detection.detection_pipeline(video, args)
     else:
+        args.detector_batch_size = 1
         video, bbs = get_bbs_size_of_images(video)
     model = load_upscaler(args.device, args.scale)
     model.eval()
 
     os.makedirs(f"{args.save_path}", exist_ok=True)
-    super_resolution_faces = []
     for i, (frame, bb) in enumerate(zip(video, bbs)):
         if len(bb) > 0:
             upscaled_crops = upscale_crops(frame, bb, model, args.margin, args.device, args.sharp_edges)
@@ -46,9 +46,6 @@ def video_face_detection_and_super_resolution(video, args, names=None):
                         pil_img.save(f"{args.save_path}/{img_name}")
                     else:
                         pil_img.save(f"{args.save_path}/frame_{i}_face_{j}_scale={args.scale}.jpg")
-                super_resolution_faces.append(pil_img)
         else:
             if names:
                 warnings.warn(f"face detector could not find faces in image {names[i]}")
-    return super_resolution_faces
-

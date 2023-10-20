@@ -73,10 +73,10 @@ def draw_bbs_on_video(video, bboxes):
 
 def get_bbs_size_of_images(images):
     bbs = []
-    images = video_to_images_for_detection(images)
     for img in images:
         width, height = img.size
-        bbs.append([0, 0, width-1, height-1])
+        bbs.append([[0, 0, width-1, height-1]])
+    images = video_to_images_for_detection(images)
     return images, bbs
 
 

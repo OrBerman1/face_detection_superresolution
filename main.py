@@ -23,4 +23,4 @@ else:
 if not args.keep_original_names:
     names = None
 
-super_resolution_faces = video_face_detection_and_super_resolution(video, args, names)
+video_face_detection_and_super_resolution(video, args, names)
