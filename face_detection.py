@@ -34,13 +34,13 @@ def load_face_detector(target_size=720, device="cpu", min_face=20):
     return YoloDetector(target_size=target_size, device=device, min_face=min_face)
 
 
-def detection_pipeline(video):
+def detection_pipeline(video, args):
     """
     preprocess the video and returns the processes video and bboxes
     @param video: a list of frames
+    @param args: argument parser object
     @return: process video and a list of lists of bboxes, one for each frame
     """
-    args = parse_args()
     frame = video[0]
     image_size = max(frame.size)
     model = load_face_detector(target_size=image_size, device=args.device, min_face=args.min_face)
