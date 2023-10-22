@@ -1,5 +1,4 @@
 import os
-
 import cv2
 from PIL import ImageDraw, Image
 import numpy as np
@@ -114,3 +113,13 @@ def sharp_edges(img):
                        [0, -1, 0]])
     sharpened = cv2.filter2D(img, -1, kernel)
     return sharpened
+
+
+def sharp_edges_by_filtering(img, lam=2):
+    img = np.array(img)
+    blurring_mask = np.array([[0, 1/6, 0], [1/6, 2/6, 1/6], [0, 1/6, 0]])
+    delta = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
+    s_lam = delta + lam * (delta - blurring_mask)
+    sharpened = cv2.filter2D(img, -1, kernel=s_lam)
+    return sharpened
+

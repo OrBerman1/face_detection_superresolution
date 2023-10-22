@@ -9,12 +9,12 @@ if args.video_path is None and args.image_path is None and args.folder_path is N
     raise IOError("no input path was given, please give image_path, video_path, or folder_path")
 if (args.video_path and args.image_path) or (args.video_path and args.folder_path) or (args.image_path and args.folder):
     raise IOError("2 of the 3 possible path options: video_path, image_path, and folder_path, most be None")
-if args.video_path and args.keep_original_name:
+if args.video_path and args.keep_original_names:
     warnings.warn("original names are impossible for a video")
     names = None
 
 if args.video_path:
-    video = read_video(args.video_path)
+    video = read_video(args.video_path)[200:300]
 elif args.image_path:
     video, names = read_image(args.image_path)
 else:
