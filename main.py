@@ -1,32 +1,27 @@
-import torch
-from yoloface_master.utils.image_utils import read_video, read_image, read_images_from_dir
+from argparser import parse_args
+from image_utils import read_video, read_image, read_images_from_dir
 from detection_and_super_resolution import video_face_detection_and_super_resolution
+import warnings
 
-if __name__ == '__main__':
-    # model = YoloDetector(target_size=720, device="cpu", min_face=20)
-    # img = Image.open("manyfaces.jpg")
-    # real_image = img.resize((720, 720))
-    # img = np.array(real_image)
-    # bboxes, _ = detect_faces_in_image(model, img)
-    # image_to_draw = ImageDraw.Draw(real_image)
-    # for bb in bboxes[0]:
-    #     start = (bb[0], bb[1])
-    #     end = (bb[2], bb[3])
-    #     image_to_draw.rectangle([start, end], outline="red")
-    # real_image.show()
+args = parse_args()
+if args.stages not in [1, 2, 3]:
+    raise IOError("stages value is invalid. possible values are: 1, 2, 3")
+if args.video_path is None and args.image_path is None and args.folder_path is None:
+    raise IOError("no input path was given, please give image_path, video_path, or folder_path")
+if (args.video_path and args.image_path) or (args.video_path and args.folder_path) or (args.image_path and args.folder):
+    raise IOError("2 of the 3 possible path options: video_path, image_path, and folder_path, most be None")
+if args.video_path and args.keep_original_name:
+    warnings.warn("original names are impossible for a video")
+    names = None
 
-    # elif args.video_path is not None:
-    #     video = read_video(video_path)
-    # elif args.image_path is not None:
-    #     video = cv2.cvtColor(cv2.imread(args.image_path), cv2.COLOR_BGR2RGB)
-    # else:
-    #     raise ValueError("Both video_path and image_path arguments are not set, one should be passed")
+if args.video_path:
+    video = read_video(args.video_path)
+elif args.image_path:
+    video, names = read_image(args.image_path)
+else:
+    args.detection_batch_size = 1
+    video, names = read_images_from_dir(args.folder_path)
+if not args.keep_original_names:
+    names = None
 
-    # video_path = "VID-20231007-WA0155.mp4"
-    # video_path = "/home/user/iron_swords/face_detection_superresolution/video2.mp4"
-    # video = read_video(video_path)
-    # image_path = "/home/user/iron_swords/face_detection_superresolution/snir_bar.PNG"
-    # video = read_image(image_path)
-    dir_path = r"/home/user/iron_swords/face_detection_superresolution/images_for_even"
-    video = read_images_from_dir(dir_path)
-    super_resolution_faces = video_face_detection_and_super_resolution(video)
+video_face_detection_and_super_resolution(video, args, names)

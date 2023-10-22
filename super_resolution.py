@@ -8,25 +8,25 @@ import model.MSFSR as MSFSR
 from PIL import Image
 from yoloface_master.utils.image_utils import resize_image_to_power_of_2, sharp_edges
 
-# import MSFSR.models.MSFSR as MSFSR
 from torchvision import transforms
 
 
 class MSFSRmodel(nn.Module):
-    def __init__(self, stg1, stg2, stg3):
+    def __init__(self, stg1, stg2, stg3, stages):
         super().__init__()
         self.stg1 = stg1
         self.stg2 = stg2
         self.stg3 = stg3
+        self.stg_list = [self.stg1, self.stg2, self.stg3]
+        self.stages = stages
 
     def forward(self, img):
-        out1 = self.stg1(img)[2]
-        # out2 = self.stg2(out1)[2]
-        # out3 = self.stg3(out2)[2]
-        return out1
+        for i in range(self.stages):
+            out = self.stg_list[i](img)[2]
+        return out
 
 
-def load_upscaler(checkpoint_path, device="cpu"):
+def load_upscaler(device="cpu",  stages=1):
     """
     loads the super resolution model for a chosen scale.
     @param checkpoint_path: the path to the model checkpoint to load
@@ -38,9 +38,9 @@ def load_upscaler(checkpoint_path, device="cpu"):
     X2_SR_net_stg2 = MSFSR.defineThreeStageGenerator(input_nc=3, output_nc=3)
     X2_SR_net_stg3 = MSFSR.defineThreeStageGenerator(input_nc=3, output_nc=3)
 
-    weights1 = torch.load(f"{checkpoint_path}/model_stg1_state.pth")
-    weights2 = torch.load(f"{checkpoint_path}/model_stg2_state.pth")
-    weights3 = torch.load(f"{checkpoint_path}/model_stg3_state.pth")
+    weights1 = torch.load(f"MSFSR/pretrained_weights/MSFSR/model_stg1_state.pth")
+    weights2 = torch.load(f"MSFSR/pretrained_weights/MSFSR/model_stg2_state.pth")
+    weights3 = torch.load(f"MSFSR/pretrained_weights/MSFSR/model_stg3_state.pth")
 
     X2_SR_net_stg1.load_state_dict(weights1)
     X2_SR_net_stg2.load_state_dict(weights2)
@@ -53,7 +53,7 @@ def load_upscaler(checkpoint_path, device="cpu"):
     X2_SR_net_stg3.to(device)
     X2_SR_net_stg3.eval()
 
-    model = MSFSRmodel(X2_SR_net_stg1, X2_SR_net_stg2, X2_SR_net_stg3).to(device)
+    model = MSFSRmodel(X2_SR_net_stg1, X2_SR_net_stg2, X2_SR_net_stg3, stages).to(device)
     return model.to(device)
 
 
@@ -67,11 +67,13 @@ def img2tensor(img):
     return imgt
 
 
-def upscale_image(img, model, device="cpu"):
+def upscale_image(img, model, device="cpu", sharp_before=False):
     """
     applies super resolution to the image with the provided model.
     @param img: image as a numpy array
     @param model: super resolution model that should return a new image
+    @param device: device
+    @param sharp_before: sharp edges before super resolution model
     @return: a new upsampled image
     """
     to_image = transforms.Compose([
@@ -83,10 +85,11 @@ def upscale_image(img, model, device="cpu"):
 
     with torch.no_grad():
         img = resize_image_to_power_of_2(Image.fromarray(img))
+        if sharp_before:
+            img = sharp_edges(img)
         img = to_tensor(img)
         img = torch.unsqueeze(img, 0)
         img.to(device)
-        # img = img.permute(0, 3, 1, 2)
 
         out = model(img.to(device))
         output = out.cpu().clone()
@@ -95,7 +98,7 @@ def upscale_image(img, model, device="cpu"):
     return sharp_edges(to_image(output))
 
 
-def upscale_crops(img, crops, model, margin, device="cpu"):
+def upscale_crops(img, crops, model, margin, device="cpu", sharp_before=False):
     """
     this function receives an image, crops coordinates and a super resolution model. The function upsamples each
     crop with super resolution
@@ -104,6 +107,7 @@ def upscale_crops(img, crops, model, margin, device="cpu"):
     @param model: super resolution model
     @param margin: enlarge the bb by a margin
     @param device: the device to load the crops to
+    @param sharp_before: sharp image before super resolution model
     @return: a list of upsampled crops from the image
     """
     img_crops = []
@@ -118,8 +122,7 @@ def upscale_crops(img, crops, model, margin, device="cpu"):
 
     upscaled_crops = []
     for crop in img_crops:
-        output = upscale_image(crop, model, device)
-        # output = sharp_edges(Image.fromarray(img))
+        output = upscale_image(crop, model, device, sharp_before)
         upscaled_crops.append(output)
 
-    return [item for item in upscaled_crops], img_crops
+    return [item for item in upscaled_crops]
