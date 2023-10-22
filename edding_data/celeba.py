@@ -112,7 +112,7 @@ if __name__ == '__main__':
     #                 "merged_filtered_even_data", path_to_save=r"/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged",
     #                 upper=300)
     # print("finished train test split")
-    create_lr_data(r"/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged", "merged_filtered_even_data_train", 2)
-    create_lr_data(r"/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged", "merged_filtered_even_data_val", 2)
+    create_lr_data(r"/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged", "merged_filtered_even_data_train", 3)
+    create_lr_data(r"/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged", "merged_filtered_even_data_val", 3)
     # get_min_and_max_size("/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_even_data_train")
     # get_min_and_max_size("/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_even_data_val")

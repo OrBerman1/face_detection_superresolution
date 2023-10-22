@@ -1,5 +1,5 @@
 #### general settings
-name: PANx2_merged_filtered_even_data_finetune
+name: PANx2_merged_filtered_even_data_finetune_sharp_100000
 use_tb_logger: True
 model: sr
 distortion: sr
@@ -13,7 +13,7 @@ datasets:
     name: even_merged
     mode: LQGT
     dataroot_GT: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_filtered_even_data_train
-    dataroot_LQ: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_filtered_even_data_train_lr_2
+    dataroot_LQ: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged_extracted/merged_filtered_even_data_train_lr_2_sharp
     
     use_shuffle: true
     n_workers: 6  # per GPU
@@ -50,7 +50,7 @@ train:
   lr_scheme: CosineAnnealingLR_Restart
   beta1: 0.9
   beta2: 0.99
-  niter: 20000
+  niter: 100000
   warmup_iter: -1  # no warm up
   T_period: [250000, 250000, 250000, 250000]
   restarts: [250000, 500000, 750000]

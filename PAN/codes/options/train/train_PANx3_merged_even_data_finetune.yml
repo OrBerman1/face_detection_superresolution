@@ -1,9 +1,9 @@
 #### general settings
-name: PANx4_merged_filtered_even_data_finetune_sharp_100000
+name: PANx3_merged_filtered_even_data_finetune_sharp_100000
 use_tb_logger: True
 model: sr
 distortion: sr
-scale: 4
+scale: 3
 save_img: False
 gpu_ids: [0]
 
@@ -13,7 +13,7 @@ datasets:
     name: even_merged
     mode: LQGT
     dataroot_GT: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged_extracted/merged_filtered_even_data_train_sharp
-    dataroot_LQ: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged_extracted/merged_filtered_even_data_train_lr_4_sharp
+    dataroot_LQ: /home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged_extracted/merged_filtered_even_data_train_lr_3_sharp
     
     use_shuffle: true
     n_workers: 6  # per GPU
@@ -36,11 +36,11 @@ network_G:
   nf: 40
   unf: 24
   nb: 16
-  scale: 4
+  scale: 3
   
 #### path
 path:
-  pretrain_model_G: /home/user/iron_swords/face_detection_superresolution/PAN/experiments/pretrained_models/PANx4_DF2K.pth
+  pretrain_model_G: /home/user/iron_swords/face_detection_superresolution/PAN/experiments/pretrained_models/PANx3_DF2K.pth
   strict_load: true
   resume_state: ~
 

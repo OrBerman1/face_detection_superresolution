@@ -35,14 +35,14 @@ def main():
 #         save_LR_folder = '../../datasets/DIV2K/DIV2K800_sub_bicLRx4'
 
         GT_folder = '/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_filtered_even_data_train'
-        LR_folder = '/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_filtered_even_data_train_lr_4'
+        LR_folder = '/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged/merged_filtered_even_data_train_lr_3'
         save_GT_folder = '/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged_extracted/merged_filtered_even_data_train_sharp'
-        save_LR_folder = '/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged_extracted/merged_filtered_even_data_train_lr_4_sharp'
+        save_LR_folder = '/home/user/iron_swords/face_detection_superresolution/PAN/datasets/even_merged_extracted/merged_filtered_even_data_train_lr_3_sharp'
 
         os.makedirs(save_GT_folder, exist_ok=True)
         os.makedirs(save_LR_folder, exist_ok=True)
         
-        scale_ratio = 4
+        scale_ratio = 3
         # crop_sz = 360  # the size of each sub-image (GT)
         crop_sz = (216, 180)
         step = 180  # step of the sliding crop window (GT)
