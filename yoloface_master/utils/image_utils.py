@@ -40,11 +40,11 @@ def read_images_from_dir(dir_path):
     images_ls = []
     for image in images_names:
         images_ls.append(Image.open(f"{dir_path}/{image}"))
-    return images_ls
+    return images_ls, images_names
 
 
 def read_image(image_path):
-    return [Image.open(f"{image_path}")]
+    return [Image.open(f"{image_path}")], [os.path.basename(image_path)]
 
 
 def save_images_to_dir(image_ls, dir_path="bb_examples"):
@@ -87,6 +87,15 @@ def draw_bbs_on_video(video, bboxes):
         draw_frame = draw_bbs_on_image(frame, bbs)
         draw_frames.append(draw_frame)
     return draw_frames
+
+
+def get_bbs_size_of_images(images):
+    bbs = []
+    for img in images:
+        width, height = img.size
+        bbs.append([[0, 0, width-1, height-1]])
+    images = video_to_images_for_detection(images)
+    return images, bbs
 
 
 def draw_bbs_on_image(img, bbs: list):

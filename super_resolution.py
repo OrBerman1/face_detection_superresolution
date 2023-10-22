@@ -36,15 +36,18 @@ def img2tensor(img):
     return imgt
 
 
-def upscale_image(img, model, device="cpu"):
+def upscale_image(img, model, device="cpu", sharp_before=False):
     """
     applies super resolution to the image with the provided model.
     @param img: image as a numpy array
     @param model: super resolution model that should return a new image
+    @param device: device
+    @param sharp_before: sharp edges before super resolution model
     @return: a new upsampled image
     """
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    img = sharp_edges(img)
+    if sharp_before:
+        img = sharp_edges(img)
     img = img.astype(np.float32) / 255
     imgt = img2tensor(img)
     imgt = imgt[None, ...]
@@ -55,10 +58,9 @@ def upscale_image(img, model, device="cpu"):
         output = single_forward(model, imgt.cuda())
 
     return sharp_edges(tensor2img(output))
-    # return tensor2img(output)
 
 
-def upscale_crops(img, crops, model, margin, device="cpu"):
+def upscale_crops(img, crops, model, margin, device="cpu", sharp_before=False):
     """
     this function receives an image, crops coordinates and a super resolution model. The function upsamples each
     crop with super resolution
@@ -66,6 +68,7 @@ def upscale_crops(img, crops, model, margin, device="cpu"):
     @param crops: list of crop coordinates, bounding boxes of format xyxy
     @param model: super resolution model
     @param device: the device to load the crops to
+    @param sharp_before: sharp image before super resolution model
     @return: a list of upsampled crops from the image
     """
     img_crops = []
@@ -80,12 +83,10 @@ def upscale_crops(img, crops, model, margin, device="cpu"):
 
     upscaled_crops = []
     for crop in img_crops:
-        output = upscale_image(crop, model, device)
+        output = upscale_image(crop, model, device, sharp_before)
         upscaled_crops.append(output)
 
     return [item for item in upscaled_crops], img_crops
-
-
 
 
 
